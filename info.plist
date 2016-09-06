@@ -7,10 +7,10 @@
 	<key>contactName</key>
 	<string>Benjamin Coddington</string>
 	<key>description</key>
-	<string>iTerm editor integration.</string>
+	<string>iTerm2 editor integration.</string>
 	<key>name</key>
-	<string>iTerm</string>
+	<string>iTerm2</string>
 	<key>uuid</key>
-	<string>FFCE4C74-6424-425C-AB58-97D993EB65DA</string>
+	<string>FDEDC90D-840D-4A7A-AF64-B10690ABB319</string>
 </dict>
 </plist>

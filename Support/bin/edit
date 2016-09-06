@@ -17,22 +17,15 @@ mkfifo "${IPCFIFO}"
 osascript  <<EOF
 tell application "iTerm"
     --activate
-
-    set myterm to (make new terminal)
-    tell myterm
-        set s to launch session "MmEditor"
-        tell s
-            set name to "MailMate ${MM_EDIT_FILE}"
-            write text "unset HISTFILE"
-            write text "function finish { > \"${IPCFIFO}\"; }"
-            write text "trap finish EXIT"
-            write text "[ \${SHELL} != \"/bin/bash\" ] && clear && echo MailMate requires an iTerm profile named MmEditor with a \"bash -l\" shell && sleep 10 && exit"
-            write text "[ -z \${EDITOR} ] && clear && echo 'your bash profile needs to define \$EDITOR' && sleep 10 && exit"
-            write text "\${EDITOR} +${MM_LINE_NUMBER} \"${MM_EDIT_FILEPATH}\" && exit"
-            -- wait for the result
-            --do shell script "cat \"${IPCFIFO}\"; rm \"${IPCFIFO}\""
-            --terminate
-        end tell
+    create window with profile "MmEditor"
+    tell current session of current window
+        set name to "MailMate ${MM_EDIT_FILE}"
+        write text "unset HISTFILE"
+        write text "function finish { > \"${IPCFIFO}\"; }"
+        write text "trap finish EXIT"
+        write text "[ \${SHELL} != \"/bin/bash\" ] && clear && echo MailMate requires an iTerm profile named MmEditor with a \"bash -l\" shell && sleep 10 && exit"
+        write text "[ -z \${EDITOR} ] && clear && echo 'your bash profile needs to define \$EDITOR' && sleep 10 && exit"
+        write text "\${EDITOR} +${MM_LINE_NUMBER} \"${MM_EDIT_FILEPATH}\" && exit"
     end tell
 end tell
 EOF
