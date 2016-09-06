@@ -4,5 +4,5 @@
 	environment   = 'MM_TITLE=${subject.body:(no subject)}\n';
 	command       = '#!/bin/bash\n"${MM_BUNDLE_SUPPORT}/bin/edit" &>/dev/null &\n';
 	keyEquivalent = "^O";
-	uuid          = '46C1F8A8-A069-4E54-A427-30D45342674F';
+	uuid          = 'F56F8C36-F624-411D-A77B-2B83FEBF7D7B';
 }

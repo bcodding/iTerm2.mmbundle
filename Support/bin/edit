@@ -2,11 +2,42 @@
 
 PATH="${PATH}:/usr/local/bin/:${HOME}/bin"
 
-if which -s mate; then
-	if [[ "$(mate --version)" = mate\ 2.* ]]
-	then mate --wait --line "${MM_LINE_NUMBER}" --name "${MM_TITLE:-(no subject)}" "${MM_EDIT_FILEPATH}"
-	else mate --wait --line "${MM_LINE_NUMBER}" "${MM_EDIT_FILEPATH}"
-	fi
-else
-	osascript -e 'tell app "MailMate" to display dialog "Make sure you have the “mate” command installed. See the “Terminal” preferences pane within TextMate." buttons "OK" default button 1 with title "Unable to locate TextMate"' >/dev/null 2>&1 &
-fi
+[ -z "${MM_EDIT_FILEPATH}" ] && exit
+#EDITOR_PATH="$(which ${EDITOR})"
+#if [ -z "${EDITOR_PATH}" ]; then
+#    osascript -e 'tell application "MailMate" to display dialog "Make sure you have $EDITOR defined in your bash profile."'
+#    exit
+#fi
+#echo $EDITOR_PATH > /tmp/test
+# disable history!!!
+IPCFIFO="${MM_EDIT_FILEPATH}.fifo"
+MM_EDIT_FILE="$(basename ${MM_EDIT_FILEPATH})"
+rm "${IPCFIFO}" 2>/dev/null
+mkfifo "${IPCFIFO}"
+osascript  <<EOF
+tell application "iTerm"
+    --activate
+
+    set myterm to (make new terminal)
+    tell myterm
+        set s to launch session "MmEditor"
+        tell s
+            set name to "MailMate ${MM_EDIT_FILE}"
+            write text "unset HISTFILE"
+            write text "function finish { > \"${IPCFIFO}\"; }"
+            write text "trap finish EXIT"
+            write text "[ \${SHELL} != \"/bin/bash\" ] && clear && echo MailMate requires an iTerm profile named MmEditor with a \"bash -l\" shell && sleep 10 && exit"
+            write text "[ -z \${EDITOR} ] && clear && echo 'your bash profile needs to define \$EDITOR' && sleep 10 && exit"
+            write text "\${EDITOR} +${MM_LINE_NUMBER} \"${MM_EDIT_FILEPATH}\" && exit"
+            -- wait for the result
+            --do shell script "cat \"${IPCFIFO}\"; rm \"${IPCFIFO}\""
+            --terminate
+        end tell
+    end tell
+end tell
+EOF
+
+cat "${IPCFIFO}"
+rm "${IPCFIFO}"
+
+osascript -e 'tell application "MailMate" to activate'
